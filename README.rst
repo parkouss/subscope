@@ -36,3 +36,13 @@ environment: ::
   # run tests
   pip install mock # not required, and only for python < 3.3 users
   python setup.py test
+
+
+Thanks to
+---------
+
+The original idea comes from the `periscope`_ project, so many thanks to
+its author and contributors! Unfortunatly the project is not active since
+Dec 2013, that's the reason why subseek exists now.
+
+.. _periscope: https://github.com/patrickdessalle/periscope
