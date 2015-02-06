@@ -12,6 +12,11 @@ try:
 except ImportError:
     from StringIO import StringIO
 
+try:
+    import xmlrpc.client as xmlrpc
+except ImportError:
+    import xmlrpclib as xmlrpc
+
 from subseek.sources import SubSeekSource
 
 LOG = logging.getLogger(__name__)
@@ -116,6 +121,49 @@ def hash_size_file(name):
         hash &= 0xFFFFFFFFFFFFFFFF
     return "%016x" % hash, filesize
 
+class RequestsTransport(xmlrpc.Transport):
+    """
+    Drop in Transport for xmlrpclib that uses Requests instead of httplib
+    That allows us to use the proxies understood by requests, to define
+    a timeout in a global way (TODO).
+
+    Took from https://gist.github.com/chrisguitarguy/2354951.
+    """
+    # change our user agent to reflect Requests
+    user_agent = "Python XMLRPC with Requests (python-requests.org)"
+
+    def request(self, host, handler, request_body, verbose):
+        """
+        Make an xmlrpc request.
+        """
+        headers = {'User-Agent': self.user_agent}
+        url = self._build_url(host, handler)
+        resp = requests.post(url, data=request_body, headers=headers)
+        try:
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise xmlrpc.ProtocolError(url, resp.status_code, 
+                                       str(e), resp.headers)
+        else:
+            return self.parse_response(resp)
+
+    def parse_response(self, resp):
+        """
+        Parse the xmlrpc response.
+        """
+        p, u = self.getparser()
+        p.feed(resp.text)
+        p.close()
+        return u.close()
+
+    def _build_url(self, host, handler):
+        """
+        Build a url for our request based on the host, handler and use_http
+        property
+        """
+        return 'http://%s/%s' % (host, handler)
+
+
 class OpenSubtitles(SubSeekSource):
     server_url = 'http://api.opensubtitles.org/xml-rpc'
 
@@ -126,7 +174,8 @@ class OpenSubtitles(SubSeekSource):
             'moviebytesize': filesize,
             'sublanguageid': ','.join(LANG2OSLANG[l] for l in langs)
         }
-        server = xmlrpclib.Server(self.server_url)
+        server = xmlrpclib.Server(self.server_url,
+                                  transport=RequestsTransport())
         result = server.LogIn("","","eng","periscope")
         token = result['token']
         response = server.SearchSubtitles(token, [search])
