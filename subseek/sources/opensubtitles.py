@@ -17,7 +17,7 @@ try:
 except ImportError:
     import xmlrpclib as xmlrpc
 
-from subseek.sources import SubSeekSource
+from subseek.sources import SubSeekSource, SourceError
 
 LOG = logging.getLogger(__name__)
 
@@ -109,8 +109,7 @@ def hash_size_file(name):
         filesize = os.fstat(f.fileno()).st_size
         hash = filesize
         if filesize < 65536 * 2:
-            LOG.error('File is too small')
-            return "SizeError"
+            raise SourceError('File is too small')
         buffer = f.read(65536)
         longlongs = struct.unpack(format, buffer)
         hash += sum(longlongs)

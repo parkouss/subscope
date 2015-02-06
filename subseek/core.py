@@ -1,4 +1,4 @@
-from subseek.sources import SubSeekSource
+from subseek.sources import SubSeekSource, SourceError
 from threading import Thread
 from Queue import Queue
 from itertools import groupby
@@ -26,12 +26,16 @@ class SubSeek(object):
         return subtitles
 
     def _search(self, source, queue, movie_path, langs):
+        subtitles = []
         try:
             subtitles = source.search(movie_path, langs)
+        except SourceError as exc:
+            # do not include stacktrace here
+            LOG.error("Error while searching subtitles for %s: %s",
+                      source.name(), exc)
         except:
             LOG.exception('Error while searching subtitles for %s',
                           source.name())
-            subtitles = []
         for sub in subtitles:
             sub['source'] = source.name()
             sub['moviepath'] = movie_path

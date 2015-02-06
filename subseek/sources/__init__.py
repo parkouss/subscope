@@ -1,4 +1,9 @@
 
+class SourceError(Exception):
+    """
+    Base exception on source errors.
+    """
+
 class SubSeekSource(object):
     REGISTRY = {}
 
