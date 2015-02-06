@@ -19,6 +19,7 @@ setup(name='subseek',
       author_email="j.parkouss@gmail.com",
       description=("A command line tool to download subtitles for your "
                    "movies."),
+      long_description=read("README.rst"),
       keywords="subtitles movies srt opensubtitles",
       license="GPLv3",
       packages=['subseek', 'subseek.sources'],
