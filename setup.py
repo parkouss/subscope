@@ -33,4 +33,6 @@ setup(name='subseek',
       entry_points={
         'console_scripts': ['subseek = subseek.main:main']
       },
+      test_suite="subseek.tests",
+      tests_require=['mock'],
 )

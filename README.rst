@@ -32,3 +32,7 @@ environment: ::
   virtualenv venv
   . venv/bin/activate
   pip install -e .
+
+  # run tests
+  pip install mock # not required, and only for python < 3.3 users
+  python setup.py test
