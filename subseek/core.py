@@ -1,9 +1,10 @@
 from subseek.sources import SubSeekSource
-import subseek.sources.opensubtitles
 from threading import Thread
 from Queue import Queue
+from itertools import groupby
 import logging
 import os
+
 
 LOG = logging.getLogger()
 
@@ -43,3 +44,30 @@ class SubSeek(object):
         with open(dest, 'wb') as stream:
             source.download(subtitle, stream)
         return dest
+
+def sub_by_source(subtitle):
+    return subtitle['source']
+
+class DownloadFirstHandler(object):
+    def __init__(self, subseek):
+        self.subseek = subseek
+
+    def run(self, filepaths, langs):
+        for filepath in filepaths:
+            subtitles = self.subseek.search(filepath, langs)
+            if not subtitles:
+                LOG.warn("Unable to find any subtitle for %s...", filepath)
+            else:
+                # subtitles are already grouped by source, we don't have to
+                # sort them for the groupby call.
+                for source_name, subs in groupby(subtitles, sub_by_source):
+                    nb_subs = len(subs)
+                    if nb_subs >= 0:
+                        LOG.info('%s: %d subtitle(s) found.',
+                                 source_name, len(nb))
+                # well, just take the first one here
+                self._download(subtitles[0])
+
+    def _download(self, subtitle):
+        LOG.info("Downloading subtitle from %s.", subtitle['source'])
+        self.subseek.download(subtitle)

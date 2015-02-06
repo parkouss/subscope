@@ -1,7 +1,8 @@
 import argparse
 import logging
 
-from subseek import __version__, core
+from subseek import __version__
+from subseek.core import SubSeek, DownloadFirstHandler
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(version=__version__)
@@ -12,13 +13,10 @@ def parse_args(argv=None):
 def main(argv=None):
     logging.basicConfig()
     options = parse_args()
-    subseek = core.SubSeek()
+    subseek = SubSeek()
 
-    subtitles = []
-    for filepath in options.filepaths:
-        subtitles.extend(subseek.search(filepath, options.language.split(',')))
-
-    print subseek.download(subtitles[0])
+    handler = DownloadFirstHandler(subseek)
+    handler.run(options.filepaths, options.language.split(','))
 
 if __name__ == '__main__':
     main()
