@@ -9,9 +9,11 @@ import os
 LOG = logging.getLogger()
 
 class SubSeek(object):
-    def __init__(self):
-        self.sources = dict((name, klass())
-                            for name, klass in SubSeekSource.REGISTRY.iteritems())
+    def __init__(self, source_names=None):
+        if source_names is None:
+            source_names = SubSeekSource.REGISTRY.keys()
+        self.sources = dict((name, SubSeekSource.REGISTRY[name]())
+                            for name in source_names)
 
     def search(self, movie_path, langs):
         queue = Queue()
