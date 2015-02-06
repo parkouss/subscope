@@ -1,5 +1,8 @@
 import unittest
-from mock import Mock
+try:
+    from mock import Mock
+except ImportError:
+    from unittest.mock import Mock
 
 from subseek.core import SubSeek
 from subseek.sources import SubSeekSource
@@ -34,4 +37,5 @@ class TestSubSeek(unittest.TestCase):
             {'moviepath': '/path/to/movie', 'source': 'src2', 'ext': '.srt'},
             {'moviepath': '/path/to/movie', 'source': 'src2', 'ext': '.srt'},
             {'moviepath': '/path/to/movie', 'source': 'src1', 'ext': '.srt'}]
-        self.assertEquals(sorted(result), sorted(expected))
+        self.assertEquals(sorted(r.items() for r in result),
+                          sorted(r.items() for r in expected))
