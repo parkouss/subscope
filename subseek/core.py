@@ -61,10 +61,11 @@ class DownloadFirstHandler(object):
                 # subtitles are already grouped by source, we don't have to
                 # sort them for the groupby call.
                 for source_name, subs in groupby(subtitles, sub_by_source):
+                    subs = list(subs)
                     nb_subs = len(subs)
                     if nb_subs >= 0:
                         LOG.info('%s: %d subtitle(s) found.',
-                                 source_name, len(nb))
+                                 source_name, nb_subs)
                 # well, just take the first one here
                 self._download(subtitles[0])
 

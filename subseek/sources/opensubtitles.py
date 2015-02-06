@@ -179,6 +179,7 @@ class OpenSubtitles(SubSeekSource):
         result = server.LogIn("","","eng","periscope")
         token = result['token']
         response = server.SearchSubtitles(token, [search])
+        server.LogOut(token)
         subtitles = []
         if response['data']:
             for r in response['data']:
