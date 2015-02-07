@@ -20,11 +20,31 @@ import logging
 
 from subseek import __version__
 from subseek.core import SubSeek, DownloadFirstHandler
+from subseek.sources import SubSeekSource
+
+class FinalAction(argparse.Action):
+    help = None
+    def __init__(self, option_strings, dest=argparse.SUPPRESS,
+                 default=argparse.SUPPRESS):
+        super(FinalAction, self).__init__(option_strings=option_strings,
+                                          dest=dest, default=default,
+                                          nargs=0, help=self.help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        self.execute()
+        parser.exit()
+
+class ListSources(FinalAction):
+    help = "list available subtitles sources and exit"
+    def execute(self):
+        for source_name in sorted(SubSeekSource.REGISTRY):
+            print(" - %s" % source_name)
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(version=__version__)
-    parser.add_argument('filepaths', nargs='+')
+    parser.add_argument('--sources', action=ListSources)
     parser.add_argument('-l', '--language', default='en')
+    parser.add_argument('filepaths', nargs='+')
     return parser.parse_args(argv)
 
 def main(argv=None):
