@@ -22,6 +22,8 @@ from subseek import __version__
 from subseek.core import SubSeek, DownloadFirstHandler
 from subseek.sources import SubSeekSource
 
+LOG = logging.getLogger(__name__.split('.')[0])
+
 class FinalAction(argparse.Action):
     help = None
     def __init__(self, option_strings, dest=argparse.SUPPRESS,
@@ -42,6 +44,9 @@ class ListSources(FinalAction):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(version=__version__)
+    parser.add_argument('--log-level', default='info',
+                        choices=('debug', 'info', 'warning', 'error'),
+                        help="logging level. default to %(default)s")
     parser.add_argument('--sources', action=ListSources)
     parser.add_argument('-l', '--language', default='en')
     parser.add_argument('filepaths', nargs='+')
@@ -50,6 +55,7 @@ def parse_args(argv=None):
 def main(argv=None):
     logging.basicConfig()
     options = parse_args()
+    LOG.setLevel(getattr(logging, options.log_level.upper()))
     subseek = SubSeek()
 
     handler = DownloadFirstHandler(subseek)

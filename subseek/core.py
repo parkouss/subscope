@@ -23,7 +23,7 @@ import logging
 import os
 
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 class SubSeek(object):
     def __init__(self, source_names=None):
@@ -81,14 +81,14 @@ class DownloadFirstHandler(object):
             if not subtitles:
                 LOG.warn("Unable to find any subtitle for %s...", filepath)
             else:
-                # subtitles are already grouped by source, we don't have to
-                # sort them for the groupby call.
-                for source_name, subs in groupby(subtitles, sub_by_source):
-                    subs = list(subs)
-                    nb_subs = len(subs)
-                    if nb_subs >= 0:
-                        LOG.info('%s: %d subtitle(s) found.',
-                                 source_name, nb_subs)
+                if LOG.isEnabledFor(logging.DEBUG):
+                    # subtitles are already grouped by source, we don't have to
+                    # sort them for the groupby call.
+                    for source_name, subs in groupby(subtitles, sub_by_source):
+                        subs = list(subs)
+                        nb_subs = len(subs)
+                        LOG.debug('%s: %d subtitle(s) found.',
+                                  source_name, nb_subs)
                 # well, just take the first one here
                 self._download(subtitles[0])
 
