@@ -19,10 +19,8 @@ import unittest
 import tempfile
 import shutil
 import os
-try:
-    from mock import Mock
-except ImportError:
-    from unittest.mock import Mock
+
+from subseek.tests import Mock
 
 from subseek.core import SubSeek, key_sub_by_langs
 from subseek.sources import SubSeekSource

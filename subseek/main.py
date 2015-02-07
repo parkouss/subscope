@@ -64,7 +64,7 @@ def parse_args(argv=None):
 
 def main(argv=None):
     logging.basicConfig()
-    options = parse_args()
+    options = parse_args(argv)
     LOG.setLevel(getattr(logging, options.log_level.upper()))
     subseek = SubSeek()
 

@@ -15,18 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with subseek. If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    from mock import Mock, patch
-except ImportError:
-    from unittest.mock import Mock, patch
+import unittest
+import os
 
-import tempfile
-import itertools
+from subseek.tests import generate_file
 
-def generate_file(size, sequence='123456789'):
-    f = tempfile.NamedTemporaryFile(delete=False)
-    infinite = itertools.cycle(sequence)
-    with f:
-        for i in xrange(size):
-            f.write(next(infinite).encode('ascii'))
-    return f.name
+from subseek.sources import opensubtitles, SourceError
+
+class TestOpenSubtitlesHash(unittest.TestCase):
+    def test_hash(self):
+        fname = generate_file(200000)
+        self.addCleanup(os.unlink, fname)
+        filehash, size = opensubtitles.hash_size_file(fname)
+        self.assertEquals(filehash, '4d494e534f4e473f')
+        self.assertEquals(size, 200000)
+
+    def test_hash_file_too_small(self):
+        fname = generate_file(50000)
+        self.addCleanup(os.unlink, fname)
+        with self.assertRaises(SourceError):
+            opensubtitles.hash_size_file(fname)

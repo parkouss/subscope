@@ -15,18 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with subseek. If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    from mock import Mock, patch
-except ImportError:
-    from unittest.mock import Mock, patch
+import unittest
+import os
 
-import tempfile
-import itertools
+from subseek.tests import generate_file
 
-def generate_file(size, sequence='123456789'):
-    f = tempfile.NamedTemporaryFile(delete=False)
-    infinite = itertools.cycle(sequence)
-    with f:
-        for i in xrange(size):
-            f.write(next(infinite).encode('ascii'))
-    return f.name
+from subseek.sources import thesubdb
+
+class TestTheSubDBHash(unittest.TestCase):
+    def test_hash(self):
+        fname = generate_file(200000)
+        self.addCleanup(os.unlink, fname)
+        filehash = thesubdb.get_hash(fname)
+        self.assertEquals(filehash, '7670cc52c96414e1f6c29cbbb6b422b5')
