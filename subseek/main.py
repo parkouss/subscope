@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with subseek. If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import argparse
 import logging
+from ConfigParser import ConfigParser
 
 from subseek import __version__, languages
 from subseek.core import SubSeek, DownloadFirstHandler
@@ -50,21 +52,35 @@ class ListLangs(FinalAction):
         for code, desc in langs:
             print(" %s: %s" % (code, desc))
 
-def parse_args(argv=None):
+def parse_args(argv=None, **defaults):
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action="version", version=__version__)
-    parser.add_argument('--log-level', default='info',
+    parser.add_argument('--log-level',
+                        default=defaults.get('log-level', 'info'),
                         choices=('debug', 'info', 'warning', 'error'),
                         help="logging level. default to %(default)s")
     parser.add_argument('--sources', action=ListSources)
     parser.add_argument('--languages', action=ListLangs)
-    parser.add_argument('-l', '--language', default='en')
+    parser.add_argument('-l', '--language',
+                        default=defaults.get('language', 'en'))
     parser.add_argument('filepaths', nargs='+')
     return parser.parse_args(argv)
 
+def read_conf(conf_file):
+    defaults = {}
+    if os.path.isfile(conf_file):
+        print('Reading configuration file %s...' % conf_file)
+        conf = ConfigParser()
+        conf.read([conf_file])
+        defaults = dict(conf.items('subseek'))
+    return defaults
+
 def main(argv=None):
     logging.basicConfig()
-    options = parse_args(argv)
+
+    defaults = read_conf(os.path.expanduser('~/.subseek.cfg'))
+
+    options = parse_args(argv, **defaults)
     LOG.setLevel(getattr(logging, options.log_level.upper()))
     subseek = SubSeek()
 

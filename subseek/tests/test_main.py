@@ -16,17 +16,21 @@
 # along with subseek. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import tempfile
+import os
 
 from subseek.tests import patch, Mock
 
 from subseek import __version__
-from subseek.main import main
+from subseek.main import main, read_conf
 
 class TestMain(unittest.TestCase):
     @patch('sys.stderr')
     @patch('sys.stdout')
     @patch('subseek.main.DownloadFirstHandler')
-    def do_main(self, argv, DownloadFirstHandler, stdout, stderr):
+    @patch('subseek.main.read_conf')
+    def do_main(self, argv, read_conf, DownloadFirstHandler, stdout, stderr):
+        read_conf.return_value = {}
         self.handler = Mock()
         DownloadFirstHandler.return_value = self.handler
         self.stdout = ''
@@ -71,3 +75,12 @@ class TestMain(unittest.TestCase):
     def test_std(self):
         self.do_main(['-l', 'fr,en', '/my/movie', '/my/movie2'])
         self.handler.run.assert_called_with(['/my/movie', '/my/movie2'], ['fr', 'en'])
+
+class TestReadConf(unittest.TestCase):
+    def test_simple(self):
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b"[subseek]\n"
+                    b"language = fr,en\n")
+        self.addCleanup(os.unlink, f.name)
+        defaults = read_conf(f.name)
+        self.assertEquals(defaults, {"language": "fr,en"})
