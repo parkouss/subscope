@@ -188,8 +188,8 @@ class OpenSubtitles(SubSeekSource):
             'moviebytesize': filesize,
             'sublanguageid': ','.join(LANG2OSLANG[l] for l in langs)
         }
-        server = xmlrpclib.Server(self.server_url,
-                                  transport=RequestsTransport())
+        server = xmlrpc.Server(self.server_url,
+                               transport=RequestsTransport())
         result = server.LogIn("","","eng","periscope")
         token = result['token']
         response = server.SearchSubtitles(token, [search])

@@ -51,7 +51,8 @@ class ListLangs(FinalAction):
             print(" %s: %s" % (code, desc))
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(version=__version__)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action="version", version=__version__)
     parser.add_argument('--log-level', default='info',
                         choices=('debug', 'info', 'warning', 'error'),
                         help="logging level. default to %(default)s")
