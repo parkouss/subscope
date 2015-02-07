@@ -38,5 +38,7 @@ def register_source(klass):
     SubSeekSource.REGISTRY[name] = klass
 
 from .opensubtitles import OpenSubtitles
+from .thesubdb import TheSubDB
 
 register_source(OpenSubtitles)
+register_source(TheSubDB)
