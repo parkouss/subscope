@@ -1,0 +1,12 @@
+# .coveragerc to control coverage.py
+[run]
+source = subseek
+omit = subseek/tests/*
+
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError

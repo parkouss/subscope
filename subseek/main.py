@@ -70,6 +70,3 @@ def main(argv=None):
 
     handler = DownloadFirstHandler(subseek)
     handler.run(options.filepaths, options.language.split(','))
-
-if __name__ == '__main__':
-    main()
