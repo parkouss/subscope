@@ -68,8 +68,14 @@ class SubSeek(object):
             source.download(subtitle, stream)
         return dest
 
-def sub_by_source(subtitle):
-    return subtitle['source']
+def key_sub_by_langs(langs):
+    limit = len(langs)
+    def by_lang(sub):
+        try:
+            return langs.index(sub['lang'])
+        except ValueError:
+            return limit
+    return by_lang
 
 class DownloadFirstHandler(object):
     def __init__(self, subseek):
@@ -84,14 +90,19 @@ class DownloadFirstHandler(object):
                 if LOG.isEnabledFor(logging.DEBUG):
                     # subtitles are already grouped by source, we don't have to
                     # sort them for the groupby call.
-                    for source_name, subs in groupby(subtitles, sub_by_source):
+                    by_source = lambda sub: sub['source']
+                    for source_name, subs in groupby(subtitles, by_source):
                         subs = list(subs)
                         nb_subs = len(subs)
                         LOG.debug('%s: %d subtitle(s) found.',
                                   source_name, nb_subs)
+                # sort by langs
+                subtitles = sorted(subtitles, key=key_sub_by_langs(langs))
                 # well, just take the first one here
                 self._download(subtitles[0])
 
     def _download(self, subtitle):
-        LOG.info("Downloading subtitle from %s.", subtitle['source'])
+        LOG.info("Downloading subtitle [%s] from %s.",
+                 subtitle['lang'],
+                 subtitle['source'])
         self.subseek.download(subtitle)
