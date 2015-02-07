@@ -18,7 +18,7 @@
 import argparse
 import logging
 
-from subseek import __version__
+from subseek import __version__, languages
 from subseek.core import SubSeek, DownloadFirstHandler
 from subseek.sources import SubSeekSource
 
@@ -42,12 +42,21 @@ class ListSources(FinalAction):
         for source_name in sorted(SubSeekSource.REGISTRY):
             print(" - %s" % source_name)
 
+class ListLangs(FinalAction):
+    help = ("list language codes (ISO 639-1 two chars sources) and exit."
+            " Note that all these codes are not used by every sources.")
+    def execute(self):
+        langs = sorted(languages.LANGS.items(), key=lambda l: l[1])
+        for code, desc in langs:
+            print(" %s: %s" % (code, desc))
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(version=__version__)
     parser.add_argument('--log-level', default='info',
                         choices=('debug', 'info', 'warning', 'error'),
                         help="logging level. default to %(default)s")
     parser.add_argument('--sources', action=ListSources)
+    parser.add_argument('--languages', action=ListLangs)
     parser.add_argument('-l', '--language', default='en')
     parser.add_argument('filepaths', nargs='+')
     return parser.parse_args(argv)
