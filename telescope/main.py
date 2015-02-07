@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of subseek.
+# This file is part of telescope.
 #
-# subseek is free software: you can redistribute it and/or modify
+# telescope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# subseek is distributed in the hope that it will be useful,
+# telescope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with subseek. If not, see <http://www.gnu.org/licenses/>.
+# along with telescope. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import argparse
 import logging
 from ConfigParser import ConfigParser
 
-from subseek import __version__, languages
-from subseek.core import SubSeek, DownloadFirstHandler
-from subseek.sources import SubSeekSource
+from telescope import __version__, languages
+from telescope.core import Telescope, DownloadFirstHandler
+from telescope.sources import TelescopeSource
 
 LOG = logging.getLogger(__name__.split('.')[0])
 
@@ -41,7 +41,7 @@ class FinalAction(argparse.Action):
 class ListSources(FinalAction):
     help = "list available subtitles sources and exit"
     def execute(self):
-        for source_name in sorted(SubSeekSource.REGISTRY):
+        for source_name in sorted(TelescopeSource.REGISTRY):
             print(" - %s" % source_name)
 
 class ListLangs(FinalAction):
@@ -72,17 +72,17 @@ def read_conf(conf_file):
         print('Reading configuration file %s...' % conf_file)
         conf = ConfigParser()
         conf.read([conf_file])
-        defaults = dict(conf.items('subseek'))
+        defaults = dict(conf.items('telescope'))
     return defaults
 
 def main(argv=None):
     logging.basicConfig()
 
-    defaults = read_conf(os.path.expanduser('~/.subseek.cfg'))
+    defaults = read_conf(os.path.expanduser('~/.telescope.cfg'))
 
     options = parse_args(argv, **defaults)
     LOG.setLevel(getattr(logging, options.log_level.upper()))
-    subseek = SubSeek()
+    telescope = Telescope()
 
-    handler = DownloadFirstHandler(subseek)
+    handler = DownloadFirstHandler(telescope)
     handler.run(options.filepaths, options.language.split(','))

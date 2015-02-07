@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of subseek.
+# This file is part of telescope.
 #
-# subseek is free software: you can redistribute it and/or modify
+# telescope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# subseek is distributed in the hope that it will be useful,
+# telescope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with subseek. If not, see <http://www.gnu.org/licenses/>.
+# along with telescope. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import re
@@ -28,13 +28,13 @@ def read(*parts):
 
 def version():
     return re.findall("__version__ = '([\d\.]+)'",
-                      read('subseek', '__init__.py'))[0]
+                      read('telescope', '__init__.py'))[0]
 
 tests_require = []
 if sys.version_info < (3, 3):
     tests_require.append('mock')
 
-setup(name='subseek',
+setup(name='telescope',
       version=version(),
       author=u"Julien Pagès",
       author_email="j.parkouss@gmail.com",
@@ -43,7 +43,7 @@ setup(name='subseek',
       long_description=read("README.rst"),
       keywords="subtitles movies srt opensubtitles",
       license="GPLv3",
-      packages=['subseek', 'subseek.sources', 'subseek.tests'],
+      packages=['telescope', 'telescope.sources', 'telescope.tests'],
       classifiers=["Development Status :: 3 - Alpha",
                    "Topic :: Utilities",
                    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -55,9 +55,9 @@ setup(name='subseek',
                    "Programming Language :: Python :: 3.4"],
       install_requires=["requests"],
       entry_points={
-        'console_scripts': ['subseek = subseek.main:main']
+        'console_scripts': ['telescope = telescope.main:main']
       },
-      test_suite="subseek.tests",
+      test_suite="telescope.tests",
       tests_require=tests_require,
       use_2to3=True,
 )
