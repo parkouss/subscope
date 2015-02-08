@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of telescope.
+# This file is part of subscope.
 #
-# telescope is free software: you can redistribute it and/or modify
+# subscope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# telescope is distributed in the hope that it will be useful,
+# subscope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with telescope. If not, see <http://www.gnu.org/licenses/>.
+# along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
-from telescope.sources import TelescopeSource, SourceError
+from subscope.sources import SubscopeSource, SourceError
 from requests.exceptions import RequestException
 from threading import Thread
 from Queue import Queue
@@ -29,11 +29,11 @@ LOG = logging.getLogger(__name__)
 def subtitle_fname(subtitle):
     return os.path.splitext(subtitle['moviepath'])[0] + subtitle['ext']
 
-class Telescope(object):
+class Subscope(object):
     def __init__(self, source_names=None):
         if source_names is None:
-            source_names = TelescopeSource.REGISTRY.keys()
-        self.sources = dict((name, TelescopeSource.REGISTRY[name]())
+            source_names = SubscopeSource.REGISTRY.keys()
+        self.sources = dict((name, SubscopeSource.REGISTRY[name]())
                             for name in source_names)
 
     def search(self, movie_path, langs):
@@ -82,8 +82,8 @@ def key_sub_by_langs(langs):
     return by_lang
 
 class DownloadHandler(object):
-    def __init__(self, telescope, force=False):
-        self.telescope = telescope
+    def __init__(self, subscope, force=False):
+        self.subscope = subscope
         self.force = force
 
     def run(self, filepaths, langs):
@@ -92,7 +92,7 @@ class DownloadHandler(object):
                 LOG.warn("Unable to get subtitles for `%s` because it is"
                          " not a file", filepath)
                 continue
-            subtitles = self.telescope.search(filepath, langs)
+            subtitles = self.subscope.search(filepath, langs)
             if not subtitles:
                 LOG.warn("Unable to find any subtitle for `%s`...", filepath)
             else:
@@ -110,7 +110,7 @@ class DownloadHandler(object):
         LOG.info("Downloading subtitle [%s] from %s.",
                  subtitle['lang'],
                  subtitle['source'])
-        self.telescope.download(subtitle, dest=dest)
+        self.subscope.download(subtitle, dest=dest)
 
 class DownloadFirstHandler(DownloadHandler):
     def _handle(self, subtitles, langs):

@@ -1,34 +1,34 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of telescope.
+# This file is part of subscope.
 #
-# telescope is free software: you can redistribute it and/or modify
+# subscope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# telescope is distributed in the hope that it will be useful,
+# subscope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with telescope. If not, see <http://www.gnu.org/licenses/>.
+# along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import tempfile
 import os
 
-from telescope.tests import patch, Mock
+from subscope.tests import patch, Mock
 
-from telescope import __version__
-from telescope.main import main, read_conf
+from subscope import __version__
+from subscope.main import main, read_conf
 
 class TestMain(unittest.TestCase):
     @patch('sys.stderr')
     @patch('sys.stdout')
-    @patch('telescope.main.DownloadFirstHandler')
-    @patch('telescope.main.read_conf')
+    @patch('subscope.main.DownloadFirstHandler')
+    @patch('subscope.main.read_conf')
     def do_main(self, argv, read_conf, DownloadFirstHandler, stdout, stderr):
         read_conf.return_value = {}
         self.handler = Mock()
@@ -79,7 +79,7 @@ class TestMain(unittest.TestCase):
 class TestReadConf(unittest.TestCase):
     def test_simple(self):
         with tempfile.NamedTemporaryFile(delete=False) as f:
-            f.write(b"[telescope]\n"
+            f.write(b"[subscope]\n"
                     b"language = fr,en\n")
         self.addCleanup(os.unlink, f.name)
         defaults = read_conf(f.name)

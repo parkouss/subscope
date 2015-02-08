@@ -1,39 +1,39 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of telescope.
+# This file is part of subscope.
 #
-# telescope is free software: you can redistribute it and/or modify
+# subscope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# telescope is distributed in the hope that it will be useful,
+# subscope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with telescope. If not, see <http://www.gnu.org/licenses/>.
+# along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import tempfile
 import shutil
 import os
 
-from telescope.tests import Mock
+from subscope.tests import Mock
 
-from telescope.core import Telescope, key_sub_by_langs
-from telescope.sources import TelescopeSource
+from subscope.core import Subscope, key_sub_by_langs
+from subscope.sources import SubscopeSource
 
-class TestTelescope(unittest.TestCase):
+class TestSubscope(unittest.TestCase):
     def setUp(self):
-        self.telescope = Telescope()
+        self.subscope = Subscope()
 
     def test_sources_member_is_created(self):
-        self.assertIsInstance(self.telescope.sources, dict)
+        self.assertIsInstance(self.subscope.sources, dict)
         # sources are all present
-        self.assertEquals(sorted(self.telescope.sources.keys()),
-                          sorted(TelescopeSource.REGISTRY))
+        self.assertEquals(sorted(self.subscope.sources.keys()),
+                          sorted(SubscopeSource.REGISTRY))
 
     def test_search(self):
         # mock the sources
@@ -44,9 +44,9 @@ class TestTelescope(unittest.TestCase):
             src.name.return_value = name
             src.search.return_value = search_return
             srcs[name] = src
-        self.telescope.sources = srcs
+        self.subscope.sources = srcs
 
-        result = self.telescope.search('/path/to/movie', ['en'])
+        result = self.subscope.search('/path/to/movie', ['en'])
 
         srcs['src1'].search.assert_called_with('/path/to/movie', ['en'])
         srcs['src2'].search.assert_called_with('/path/to/movie', ['en'])
@@ -65,10 +65,10 @@ class TestTelescope(unittest.TestCase):
         def do_download(sub, stream):
             stream.write(b'this is my sub')
 
-        self.telescope.sources = {'test': Mock(download=Mock(side_effect=do_download))}
+        self.subscope.sources = {'test': Mock(download=Mock(side_effect=do_download))}
 
         path = os.path.join(tempdir, 'my-movie.avi')
-        self.telescope.download({'source': 'test', 'moviepath': path, 'ext': '.srt'})
+        self.subscope.download({'source': 'test', 'moviepath': path, 'ext': '.srt'})
 
         with open(os.path.join(tempdir, 'my-movie.srt')) as f:
             self.assertEquals(f.read(), 'this is my sub')

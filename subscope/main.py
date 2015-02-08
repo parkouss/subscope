@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of telescope.
+# This file is part of subscope.
 #
-# telescope is free software: you can redistribute it and/or modify
+# subscope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# telescope is distributed in the hope that it will be useful,
+# subscope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with telescope. If not, see <http://www.gnu.org/licenses/>.
+# along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import argparse
@@ -22,10 +22,10 @@ import requests
 from requests.exceptions import RequestException
 from ConfigParser import ConfigParser
 
-from telescope import __version__, languages
-from telescope.core import (Telescope, DownloadFirstHandler, 
+from subscope import __version__, languages
+from subscope.core import (Subscope, DownloadFirstHandler, 
                             DownloadInteractiveHandler)
-from telescope.sources import TelescopeSource
+from subscope.sources import SubscopeSource
 
 LOG = logging.getLogger(__name__.split('.')[0])
 
@@ -44,7 +44,7 @@ class FinalAction(argparse.Action):
 class ListSources(FinalAction):
     help = "list available subtitles sources and exit"
     def execute(self):
-        for source_name in sorted(TelescopeSource.REGISTRY):
+        for source_name in sorted(SubscopeSource.REGISTRY):
             print(" - %s" % source_name)
 
 class ListLangs(FinalAction):
@@ -86,7 +86,7 @@ def read_conf(conf_file):
         print('Reading configuration file %s...' % conf_file)
         conf = ConfigParser()
         conf.read([conf_file])
-        defaults = dict(conf.items('telescope'))
+        defaults = dict(conf.items('subscope'))
     return defaults
 
 def set_requests_global_defaults(meth_name, **defaults):
@@ -98,29 +98,29 @@ def set_requests_global_defaults(meth_name, **defaults):
     setattr(requests, meth_name, _meth)
 
 def check_pypi_version():
-    url = "https://pypi.python.org/pypi/telescope/json"
+    url = "https://pypi.python.org/pypi/subscope/json"
     try:
         pypi_version = requests.get(url).json()['info']['version']
-    except (RequestException, KeyError):
+    except (RequestException, KeyError, ValueError):
         LOG.critical("Unable to get latest version from pypi.")
         return
     if __version__ != pypi_version:
-        LOG.warn("You are using telescope version %s, however version %s"
+        LOG.warn("You are using subscope version %s, however version %s"
                  " is available.", __version__, pypi_version)
         LOG.warn("You should consider upgrading via the 'pip install"
-                 " --upgrade telescope' command.")
+                 " --upgrade subscope' command.")
 
 def main(argv=None):
     logging.basicConfig()
 
-    defaults = read_conf(os.path.expanduser('~/.telescope.cfg'))
+    defaults = read_conf(os.path.expanduser('~/.subscope.cfg'))
 
     options = parse_args(argv, **defaults)
     LOG.setLevel(getattr(logging, options.log_level.upper()))
 
     check_pypi_version()
 
-    telescope = Telescope()
+    subscope = Subscope()
 
     set_requests_global_defaults('get', timeout=options.requests_timeout)
     set_requests_global_defaults('post', timeout=options.requests_timeout)
@@ -129,5 +129,5 @@ def main(argv=None):
         handler_klass = DownloadInteractiveHandler
     else:
         handler_klass = DownloadFirstHandler
-    handler = handler_klass(telescope, force=options.force)
+    handler = handler_klass(subscope, force=options.force)
     handler.run(options.filepaths, options.language.split(','))

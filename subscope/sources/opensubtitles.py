@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of telescope.
+# This file is part of subscope.
 #
-# telescope is free software: you can redistribute it and/or modify
+# subscope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# telescope is distributed in the hope that it will be useful,
+# subscope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with telescope. If not, see <http://www.gnu.org/licenses/>.
+# along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import xmlrpclib
@@ -32,7 +32,7 @@ try:
 except ImportError:
     import xmlrpclib as xmlrpc
 
-from telescope.sources import TelescopeSource, SourceError
+from subscope.sources import SubscopeSource, SourceError
 
 LOG = logging.getLogger(__name__)
 
@@ -178,7 +178,7 @@ class RequestsTransport(xmlrpc.Transport):
         return 'http://%s/%s' % (host, handler)
 
 
-class OpenSubtitles(TelescopeSource):
+class OpenSubtitles(SubscopeSource):
     server_url = 'http://api.opensubtitles.org/xml-rpc'
 
     def search(self, filename, langs):

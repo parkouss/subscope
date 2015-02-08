@@ -1,7 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
-source = telescope
-omit = telescope/tests/*
+source = subscope
+omit = subscope/tests/*
 
 
 [report]

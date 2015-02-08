@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of telescope.
+# This file is part of subscope.
 #
-# telescope is free software: you can redistribute it and/or modify
+# subscope is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# telescope is distributed in the hope that it will be useful,
+# subscope is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with telescope. If not, see <http://www.gnu.org/licenses/>.
+# along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 class SourceError(Exception):
     """
     Base exception on source errors.
     """
 
-class TelescopeSource(object):
+class SubscopeSource(object):
     REGISTRY = {}
 
     def __init__(self):
@@ -34,8 +34,8 @@ class TelescopeSource(object):
 
 def register_source(klass):
     name = klass.__name__
-    assert name not in TelescopeSource.REGISTRY
-    TelescopeSource.REGISTRY[name] = klass
+    assert name not in SubscopeSource.REGISTRY
+    SubscopeSource.REGISTRY[name] = klass
 
 from .opensubtitles import OpenSubtitles
 from .thesubdb import TheSubDB
