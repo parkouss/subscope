@@ -21,6 +21,7 @@ import hashlib
 import urllib
 
 from subscope.sources import SubscopeSource
+from subscope import __version__
 
 
 def get_hash(name):
@@ -36,7 +37,8 @@ class TheSubDB(SubscopeSource):
     url = 'http://api.thesubdb.com/'
     headers = {
         "User-Agent": ("SubDB/1.0 "
-                       "(periscope/0.1; http://code.google.com/p/periscope)")
+                       "(subscope/%s; http://parkouss.github.io/subscope)"
+                       % __version__)
     }
 
     def search(self, filename, langs):
