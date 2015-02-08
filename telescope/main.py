@@ -19,6 +19,7 @@ import os
 import argparse
 import logging
 import requests
+from requests.exceptions import RequestException
 from ConfigParser import ConfigParser
 
 from telescope import __version__, languages
@@ -96,6 +97,19 @@ def set_requests_global_defaults(meth_name, **defaults):
         return meth(url, **kwargs)
     setattr(requests, meth_name, _meth)
 
+def check_pypi_version():
+    url = "https://pypi.python.org/pypi/telescope/json"
+    try:
+        pypi_version = requests.get(url).json()['info']['version']
+    except (RequestException, KeyError):
+        LOG.critical("Unable to get latest version from pypi.")
+        return
+    if __version__ != pypi_version:
+        LOG.warn("You are using telescope version %s, however version %s"
+                 " is available.", __version__, pypi_version)
+        LOG.warn("You should consider upgrading via the 'pip install"
+                 " --upgrade telescope' command.")
+
 def main(argv=None):
     logging.basicConfig()
 
@@ -103,6 +117,9 @@ def main(argv=None):
 
     options = parse_args(argv, **defaults)
     LOG.setLevel(getattr(logging, options.log_level.upper()))
+
+    check_pypi_version()
+
     telescope = Telescope()
 
     set_requests_global_defaults('get', timeout=options.requests_timeout)
