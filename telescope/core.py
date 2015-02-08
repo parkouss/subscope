@@ -77,7 +77,7 @@ def key_sub_by_langs(langs):
             return limit
     return by_lang
 
-class DownloadFirstHandler(object):
+class DownloadHandler(object):
     def __init__(self, telescope):
         self.telescope = telescope
 
@@ -87,22 +87,47 @@ class DownloadFirstHandler(object):
             if not subtitles:
                 LOG.warn("Unable to find any subtitle for %s...", filepath)
             else:
-                if LOG.isEnabledFor(logging.DEBUG):
-                    # subtitles are already grouped by source, we don't have to
-                    # sort them for the groupby call.
-                    by_source = lambda sub: sub['source']
-                    for source_name, subs in groupby(subtitles, by_source):
-                        subs = list(subs)
-                        nb_subs = len(subs)
-                        LOG.debug('%s: %d subtitle(s) found.',
-                                  source_name, nb_subs)
-                # sort by langs
-                subtitles = sorted(subtitles, key=key_sub_by_langs(langs))
-                # well, just take the first one here
-                self._download(subtitles[0])
+                self._handle(subtitles, langs)
+
+    def _handle(self, subtitles, langs):
+        raise NotImplementedError
 
     def _download(self, subtitle):
         LOG.info("Downloading subtitle [%s] from %s.",
                  subtitle['lang'],
                  subtitle['source'])
         self.telescope.download(subtitle)
+
+class DownloadFirstHandler(DownloadHandler):
+    def _handle(self, subtitles, langs):
+        if LOG.isEnabledFor(logging.DEBUG):
+            # subtitles are already grouped by source, we don't have to
+            # sort them for the groupby call.
+            by_source = lambda sub: sub['source']
+            for source_name, subs in groupby(subtitles, by_source):
+                subs = list(subs)
+                nb_subs = len(subs)
+                LOG.debug('%s: %d subtitle(s) found.',
+                          source_name, nb_subs)
+        # sort by langs
+        subtitles = sorted(subtitles, key=key_sub_by_langs(langs))
+        # well, just take the first one here
+        self._download(subtitles[0])
+
+class DownloadInteractiveHandler(DownloadHandler):
+    def _handle(self, subtitles, langs):
+        if len(subtitles) == 1:
+            LOG.info("Only one subtitle found.")
+            self._download(subtitles[0])
+            return
+        print("Choose the subtitle you want to download:")
+        # format output
+        line = " % 2d: [%s] %s"
+        for i, sub in enumerate(subtitles):
+            print(line % (i+1, sub['lang'], sub['source']))
+        while 1:
+            result = raw_input("> ")
+            if result in [str(i+1) for i in range(len(subtitles))]:
+                result = int(result) - 1
+                break
+        self._download(subtitles[result])

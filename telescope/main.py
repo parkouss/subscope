@@ -21,7 +21,8 @@ import logging
 from ConfigParser import ConfigParser
 
 from telescope import __version__, languages
-from telescope.core import Telescope, DownloadFirstHandler
+from telescope.core import (Telescope, DownloadFirstHandler, 
+                            DownloadInteractiveHandler)
 from telescope.sources import TelescopeSource
 
 LOG = logging.getLogger(__name__.split('.')[0])
@@ -63,6 +64,8 @@ def parse_args(argv=None, **defaults):
     parser.add_argument('--languages', action=ListLangs)
     parser.add_argument('-l', '--language',
                         default=defaults.get('language', 'en'))
+    parser.add_argument('-i', '--interactive', action='store_true',
+                        help="Interactive mode to download subtitles.")
     parser.add_argument('filepaths', nargs='+')
     return parser.parse_args(argv)
 
@@ -84,5 +87,8 @@ def main(argv=None):
     LOG.setLevel(getattr(logging, options.log_level.upper()))
     telescope = Telescope()
 
-    handler = DownloadFirstHandler(telescope)
+    if options.interactive:
+        handler = DownloadInteractiveHandler(telescope)
+    else:
+        handler = DownloadFirstHandler(telescope)
     handler.run(options.filepaths, options.language.split(','))
