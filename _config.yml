@@ -1,0 +1,14 @@
+# Site settings
+title: subscope
+email: j.parkouss@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  subscope is a command line tool to find and download subtitles
+  for your movies.
+baseurl: "/subscope" # the subpath of your site, e.g. /blog/
+url: "http://parkouss.github.io" # the base hostname & protocol for your site
+
+github_username:  parkouss
+
+# Build settings
+markdown: kramdown
+exclude: [vendor]
