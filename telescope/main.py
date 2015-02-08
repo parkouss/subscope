@@ -18,6 +18,7 @@
 import os
 import argparse
 import logging
+import requests
 from ConfigParser import ConfigParser
 
 from telescope import __version__, languages
@@ -47,7 +48,7 @@ class ListSources(FinalAction):
 
 class ListLangs(FinalAction):
     help = ("list language codes (ISO 639-1 two chars sources) and exit."
-            " Note that all these codes are not used by every sources.")
+            " Note that all these codes are not used by every sources")
     def execute(self):
         langs = sorted(languages.LANGS.items(), key=lambda l: l[1])
         for code, desc in langs:
@@ -62,6 +63,10 @@ def parse_args(argv=None, **defaults):
                         help="logging level. default to %(default)s")
     parser.add_argument('--sources', action=ListSources)
     parser.add_argument('--languages', action=ListLangs)
+    parser.add_argument('-t', '--requests-timeout', type=float,
+                        default=defaults.get('requests-timeout', '10.0'),
+                        help=("set default timeout for requests in second."
+                              " Default to %(default)s"))
     parser.add_argument('-l', '--language',
                         default=defaults.get('language', 'en'))
     parser.add_argument('-f', '--force', action='store_true',
@@ -70,7 +75,9 @@ def parse_args(argv=None, **defaults):
     parser.add_argument('-i', '--interactive', action='store_true',
                         help="interactive mode to download subtitles")
     parser.add_argument('filepaths', nargs='+')
-    return parser.parse_args(argv)
+    options = parser.parse_args(argv)
+    options.requests_timeout = float(options.requests_timeout)
+    return options
 
 def read_conf(conf_file):
     defaults = {}
@@ -81,6 +88,14 @@ def read_conf(conf_file):
         defaults = dict(conf.items('telescope'))
     return defaults
 
+def set_requests_global_defaults(meth_name, **defaults):
+    meth = getattr(requests, meth_name)
+    def _meth(url, **kwargs):
+        for k, v in defaults.iteritems():
+            kwargs.setdefault(k, v)
+        return meth(url, **kwargs)
+    setattr(requests, meth_name, _meth)
+
 def main(argv=None):
     logging.basicConfig()
 
@@ -89,6 +104,9 @@ def main(argv=None):
     options = parse_args(argv, **defaults)
     LOG.setLevel(getattr(logging, options.log_level.upper()))
     telescope = Telescope()
+
+    set_requests_global_defaults('get', timeout=options.requests_timeout)
+    set_requests_global_defaults('post', timeout=options.requests_timeout)
 
     if options.interactive:
         handler_klass = DownloadInteractiveHandler

@@ -16,6 +16,7 @@
 # along with telescope. If not, see <http://www.gnu.org/licenses/>.
 
 from telescope.sources import TelescopeSource, SourceError
+from requests.exceptions import RequestException
 from threading import Thread
 from Queue import Queue
 from itertools import groupby
@@ -51,7 +52,7 @@ class Telescope(object):
         subtitles = []
         try:
             subtitles = source.search(movie_path, langs)
-        except SourceError as exc:
+        except (SourceError, RequestException) as exc:
             # do not include stacktrace here
             LOG.error("Error while searching subtitles for %s: %s",
                       source.name(), exc)
