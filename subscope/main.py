@@ -48,7 +48,7 @@ class ListSources(FinalAction):
             print(" - %s" % source_name)
 
 class ListLangs(FinalAction):
-    help = ("list language codes (ISO 639-1 two chars sources) and exit."
+    help = ("list language codes (ISO 639-1 two chars codes) and exit."
             " Note that all these codes are not used by every sources")
     def execute(self):
         langs = sorted(languages.LANGS.items(), key=lambda l: l[1])
@@ -56,28 +56,43 @@ class ListLangs(FinalAction):
             print(" %s: %s" % (code, desc))
 
 def parse_args(argv=None, **defaults):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--version', action="version", version=__version__)
-    parser.add_argument('--log-level',
-                        default=defaults.get('log-level', 'info'),
-                        choices=('debug', 'info', 'warning', 'error'),
-                        help="logging level. default to %(default)s")
-    parser.add_argument('--sources', action=ListSources)
-    parser.add_argument('--languages', action=ListLangs)
+    usage = "%(prog)s [options] filepath [filepath ...]"
+
+    parser = argparse.ArgumentParser(usage=usage)
+    parser.add_argument('-v', '--version', action="version",
+                        version=__version__)
+
+    parser.add_argument('-l', '--language',
+                        default=defaults.get('language', 'en'),
+                        help=("comma separated list of desired langs for the"
+                              " subtitles (ISO 639-1 two chars). Default to"
+                              " %(default)s"))
+
+    parser.add_argument('-f', '--force', action='store_true',
+                        help=("force download of subtitle even if one"
+                              " already exists"))
+
+    parser.add_argument('-i', '--interactive', action='store_true',
+                        help="interactive mode to download subtitles")
+
     parser.add_argument('-t', '--requests-timeout', type=float,
                         default=defaults.get('requests-timeout', '10.0'),
                         help=("set default timeout for requests in second."
                               " Default to %(default)s"))
-    parser.add_argument('-l', '--language',
-                        default=defaults.get('language', 'en'))
-    parser.add_argument('-f', '--force', action='store_true',
-                        help=("force download of subtitle even if one"
-                              " already exists"))
-    parser.add_argument('-i', '--interactive', action='store_true',
-                        help="interactive mode to download subtitles")
-    parser.add_argument('filepaths', nargs='+')
+
+    parser.add_argument('--log-level',
+                        default=defaults.get('log-level', 'info'),
+                        choices=('debug', 'info', 'warning', 'error'),
+                        help="logging level. default to %(default)s")
+
+    parser.add_argument('--sources', action=ListSources)
+    parser.add_argument('--languages', action=ListLangs)
+    parser.add_argument('filepaths', nargs='+',
+                        help="path to your movie files")
+
     options = parser.parse_args(argv)
     options.requests_timeout = float(options.requests_timeout)
+    options.language = options.language.replace(' ', '')
     return options
 
 def read_conf(conf_file):
