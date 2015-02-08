@@ -64,8 +64,11 @@ def parse_args(argv=None, **defaults):
     parser.add_argument('--languages', action=ListLangs)
     parser.add_argument('-l', '--language',
                         default=defaults.get('language', 'en'))
+    parser.add_argument('-f', '--force', action='store_true',
+                        help=("force download of subtitle even if one"
+                              " already exists"))
     parser.add_argument('-i', '--interactive', action='store_true',
-                        help="Interactive mode to download subtitles.")
+                        help="interactive mode to download subtitles")
     parser.add_argument('filepaths', nargs='+')
     return parser.parse_args(argv)
 
@@ -88,7 +91,8 @@ def main(argv=None):
     telescope = Telescope()
 
     if options.interactive:
-        handler = DownloadInteractiveHandler(telescope)
+        handler_klass = DownloadInteractiveHandler
     else:
-        handler = DownloadFirstHandler(telescope)
+        handler_klass = DownloadFirstHandler
+    handler = handler_klass(telescope, force=options.force)
     handler.run(options.filepaths, options.language.split(','))

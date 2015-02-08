@@ -25,6 +25,9 @@ import os
 
 LOG = logging.getLogger(__name__)
 
+def subtitle_fname(subtitle):
+    return os.path.splitext(subtitle['moviepath'])[0] + subtitle['ext']
+
 class Telescope(object):
     def __init__(self, source_names=None):
         if source_names is None:
@@ -61,9 +64,9 @@ class Telescope(object):
             sub.setdefault('ext', '.srt')
         queue.put(subtitles)
 
-    def download(self, subtitle):
+    def download(self, subtitle, dest=None):
         source = self.sources[subtitle['source']]
-        dest = os.path.splitext(subtitle['moviepath'])[0] + subtitle['ext']
+        dest = dest or subtitle_fname(subtitle)
         with open(dest, 'wb') as stream:
             source.download(subtitle, stream)
         return dest
@@ -78,8 +81,9 @@ def key_sub_by_langs(langs):
     return by_lang
 
 class DownloadHandler(object):
-    def __init__(self, telescope):
+    def __init__(self, telescope, force=False):
         self.telescope = telescope
+        self.force = force
 
     def run(self, filepaths, langs):
         for filepath in filepaths:
@@ -93,10 +97,15 @@ class DownloadHandler(object):
         raise NotImplementedError
 
     def _download(self, subtitle):
+        dest = subtitle_fname(subtitle)
+        if not self.force and os.path.isfile(dest):
+            LOG.warn("Subtitle `%s` already present, use --force to download",
+                     dest)
+            return
         LOG.info("Downloading subtitle [%s] from %s.",
                  subtitle['lang'],
                  subtitle['source'])
-        self.telescope.download(subtitle)
+        self.telescope.download(subtitle, dest=dest)
 
 class DownloadFirstHandler(DownloadHandler):
     def _handle(self, subtitles, langs):
