@@ -87,9 +87,13 @@ class DownloadHandler(object):
 
     def run(self, filepaths, langs):
         for filepath in filepaths:
+            if not os.path.isfile(filepath):
+                LOG.warn("Unable to get subtitles for `%s` because it is"
+                         " not a file", filepath)
+                continue
             subtitles = self.telescope.search(filepath, langs)
             if not subtitles:
-                LOG.warn("Unable to find any subtitle for %s...", filepath)
+                LOG.warn("Unable to find any subtitle for `%s`...", filepath)
             else:
                 self._handle(subtitles, langs)
 
