@@ -156,7 +156,11 @@
     }
 }
 
-
+@include media-query($on-laptop) {
+    .hide-on-laptop {
+        display: none;
+    }
+}
 
 /**
  * Page content
