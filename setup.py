@@ -41,7 +41,7 @@ setup(name='telescope',
       description=("A command line tool to download subtitles for your "
                    "movies."),
       long_description=read("README.rst"),
-      keywords="subtitles movies srt opensubtitles",
+      keywords="subtitles movies srt download opensubtitles thesubdb",
       license="GPLv3",
       packages=['telescope', 'telescope.sources', 'telescope.tests'],
       classifiers=["Development Status :: 3 - Alpha",
