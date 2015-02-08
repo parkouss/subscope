@@ -29,7 +29,9 @@ class TestMain(unittest.TestCase):
     @patch('sys.stdout')
     @patch('subscope.main.DownloadFirstHandler')
     @patch('subscope.main.read_conf')
-    def do_main(self, argv, read_conf, DownloadFirstHandler, stdout, stderr):
+    @patch('subscope.main.check_pypi_version')
+    def do_main(self, argv, check_pypi_version, read_conf,
+                DownloadFirstHandler, stdout, stderr):
         read_conf.return_value = {}
         self.handler = Mock()
         DownloadFirstHandler.return_value = self.handler
