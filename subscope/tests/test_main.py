@@ -18,11 +18,13 @@
 import unittest
 import tempfile
 import os
+import requests
 
 from subscope.tests import patch, Mock
 
 from subscope import __version__
-from subscope.main import main, read_conf
+from subscope.main import (main, read_conf, set_requests_global_defaults,
+                           check_pypi_version)
 
 class TestMain(unittest.TestCase):
     @patch('sys.stderr')
@@ -86,3 +88,37 @@ class TestReadConf(unittest.TestCase):
         self.addCleanup(os.unlink, f.name)
         defaults = read_conf(f.name)
         self.assertEquals(defaults, {"language": "fr,en"})
+
+class TestSetRequestsGlobalDefaults(unittest.TestCase):
+    @patch('requests.get')
+    def test_call_requests(self, get):
+        set_requests_global_defaults('get', timeout=10.0)
+        requests.get('http://foo')
+        # default is applied
+        get.assert_called_with('http://foo', timeout=10.0)
+        # but can be overriden
+        requests.get('http://foo', timeout=1)
+        get.assert_called_with('http://foo', timeout=1)
+        
+class TestCheckPyPiVersion(unittest.TestCase):
+    @patch('subscope.main.LOG')
+    @patch('requests.get')
+    def test_checkpypi_same(self, get, LOG):
+        get.return_value = Mock(json= lambda: {'info': {'version': __version__}})
+        check_pypi_version()
+        self.assertFalse(LOG.warn.called)
+        self.assertFalse(LOG.critical.called)
+
+    @patch('subscope.main.LOG')
+    @patch('requests.get')
+    def test_checkpypi_new_release(self, get, LOG):
+        get.return_value = Mock(json= lambda: {'info': {'version': '0.0'}})
+        check_pypi_version()
+        self.assertIn("You are using subscope version", LOG.warn.call_args_list[0][0][0])
+
+    @patch('subscope.main.LOG')
+    @patch('requests.get')
+    def test_checkpypi_raise_exception(self, get, LOG):
+        get.side_effect = KeyError
+        check_pypi_version()
+        self.assertIn("Unable to", LOG.critical.call_args_list[0][0][0])
