@@ -3,6 +3,7 @@ subscope
 
 A command line tool to download subtitles for your movies.
 
+See the `project page`_ for more documentation.
 
 Installation
 ------------
@@ -46,3 +47,5 @@ its author and contributors! Unfortunatly the project is not active since
 Dec 2013, that's the reason why subscope exists now.
 
 .. _periscope: https://github.com/patrickdessalle/periscope
+
+.. _project page: http://parkouss.github.io/subscope
