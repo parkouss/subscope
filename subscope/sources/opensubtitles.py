@@ -186,7 +186,7 @@ class OpenSubtitles(SubscopeSource):
         filehash, filesize = hash_size_file(filename)
         search = {
             'moviehash': filehash,
-            'moviebytesize': filesize,
+            'moviebytesize': str(filesize),
             'sublanguageid': ','.join(LANG2OSLANG[l] for l in langs)
         }
         server = xmlrpc.Server(self.server_url,
