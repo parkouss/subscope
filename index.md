@@ -2,6 +2,10 @@
 layout: home
 ---
 
+[![Latest Version](https://pypip.in/version/subscope/badge.svg?text=version)](https://pypi.python.org/pypi/subscope/)
+[![Supported Python versions](https://pypip.in/py_versions/subscope/badge.svg)](https://pypi.python.org/pypi/subscope/)
+[![License](https://pypip.in/license/subscope/badge.svg)](https://pypi.python.org/pypi/subscope/)
+
 # Quickstart
 
 1. Install subscope
