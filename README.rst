@@ -1,5 +1,5 @@
 subscope
-=======
+========
 
 A command line tool to download subtitles for your movies.
 
