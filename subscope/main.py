@@ -16,6 +16,7 @@
 # along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import argparse
 import logging
 import requests
@@ -145,4 +146,7 @@ def main(argv=None):
     else:
         handler_klass = DownloadFirstHandler
     handler = handler_klass(subscope, force=options.force)
-    handler.run(options.filepaths, options.language.split(','))
+    try:
+        handler.run(options.filepaths, options.language.split(','))
+    except KeyboardInterrupt:
+        sys.exit("\nInterrupted.")
