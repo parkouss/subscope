@@ -5,6 +5,9 @@ A command line tool to download subtitles for your movies.
 
 See the `project page`_ for more documentation.
 
+.. image:: https://travis-ci.org/parkouss/subscope.svg?branch=master
+    :target: https://travis-ci.org/parkouss/subscope
+
 Installation
 ------------
 
