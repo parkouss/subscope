@@ -167,7 +167,7 @@ class RequestsTransport(xmlrpc.Transport):
         Parse the xmlrpc response.
         """
         p, u = self.getparser()
-        p.feed(resp.text)
+        p.feed(resp.content)
         p.close()
         return u.close()
 
