@@ -33,6 +33,7 @@ except ImportError:
     import xmlrpclib as xmlrpc
 
 from subscope.sources import SubscopeSource, SourceError
+from subscope import __version__
 
 LOG = logging.getLogger(__name__)
 
@@ -190,7 +191,7 @@ class OpenSubtitles(SubscopeSource):
         }
         server = xmlrpc.Server(self.server_url,
                                transport=RequestsTransport())
-        result = server.LogIn("","","eng","periscope")
+        result = server.LogIn("", "" , "eng", "subscope %s" % __version__)
         token = result['token']
         response = server.SearchSubtitles(token, [search])
         server.LogOut(token)
