@@ -8,13 +8,16 @@ python:
 # this is tricky for python 3, as we use 'use_2to3' flag
 # in the setup.py - this move code in build/lib folder
 # and coverage config is not adapted to that.
+#
+# same thing for flake8, only run in 2.7 since codebase is for python2.
 
 install:
 - pip install .
-- if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install coveralls; fi
+- if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install coveralls flake8; fi
 
 script:
 - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then coverage run setup.py test; fi
+- if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then flake8 subscope; fi
 - if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then python setup.py test; fi
 
 after_success:
