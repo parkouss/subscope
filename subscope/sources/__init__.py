@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
+
 class SourceError(Exception):
     """
     Base exception on source errors.
     """
+
 
 class SubscopeSource(object):
     REGISTRY = {}
@@ -32,13 +34,19 @@ class SubscopeSource(object):
     def search(self, filename, langs):
         raise NotImplementedError
 
+
 def register_source(klass):
     name = klass.__name__
     assert name not in SubscopeSource.REGISTRY
     SubscopeSource.REGISTRY[name] = klass
 
-from .opensubtitles import OpenSubtitles
-from .thesubdb import TheSubDB
 
-register_source(OpenSubtitles)
-register_source(TheSubDB)
+def register_sources():
+    from .opensubtitles import OpenSubtitles
+    from .thesubdb import TheSubDB
+
+    register_source(OpenSubtitles)
+    register_source(TheSubDB)
+
+
+register_sources()

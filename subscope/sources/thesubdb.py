@@ -33,6 +33,7 @@ def get_hash(name):
         data += f.read(readsize)
     return hashlib.md5(data).hexdigest()
 
+
 class TheSubDB(SubscopeSource):
     url = 'http://api.thesubdb.com/'
     headers = {
@@ -54,7 +55,7 @@ class TheSubDB(SubscopeSource):
             if lang in langs:
                 sublink = '%s?%s' % (self.url,
                                      urllib.urlencode({'action': 'download',
-                                                       'hash': filehash ,
+                                                       'hash': filehash,
                                                        'language': lang}))
                 subtitles.append({
                     'lang': lang,

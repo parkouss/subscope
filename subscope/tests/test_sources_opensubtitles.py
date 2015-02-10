@@ -22,6 +22,7 @@ from subscope.tests import generate_file
 
 from subscope.sources import opensubtitles, SourceError
 
+
 class TestOpenSubtitlesHash(unittest.TestCase):
     def test_hash(self):
         fname = generate_file(200000)

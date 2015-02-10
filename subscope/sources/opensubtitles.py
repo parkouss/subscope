@@ -113,12 +113,13 @@ LANG2OSLANG = {
 
 OSLANG2LANG = dict((v, k) for k, v in LANG2OSLANG.iteritems())
 
+
 def hash_size_file(name):
     """
     Calculates the Hash à-la Media Player Classic as it is the hash used by
     OpenSubtitles. By the way, this is not a very robust hash code.
     """
-    longlongformat = 'Q' # unsigned long long little endian
+    longlongformat = 'Q'  # unsigned long long little endian
     bytesize = struct.calcsize(longlongformat)
     format = "<%d%s" % (65536//bytesize, longlongformat)
     with open(name, "rb") as f:
@@ -129,12 +130,13 @@ def hash_size_file(name):
         buffer = f.read(65536)
         longlongs = struct.unpack(format, buffer)
         hash += sum(longlongs)
-        f.seek(-65536, os.SEEK_END) # size is always > 131072
+        f.seek(-65536, os.SEEK_END)  # size is always > 131072
         buffer = f.read(65536)
         longlongs = struct.unpack(format, buffer)
         hash += sum(longlongs)
         hash &= 0xFFFFFFFFFFFFFFFF
     return "%016x" % hash, filesize
+
 
 class RequestsTransport(xmlrpc.Transport):
     """
@@ -157,7 +159,7 @@ class RequestsTransport(xmlrpc.Transport):
         try:
             resp.raise_for_status()
         except requests.RequestException as e:
-            raise xmlrpc.ProtocolError(url, resp.status_code, 
+            raise xmlrpc.ProtocolError(url, resp.status_code,
                                        str(e), resp.headers)
         else:
             return self.parse_response(resp)
@@ -191,7 +193,7 @@ class OpenSubtitles(SubscopeSource):
         }
         server = xmlrpc.Server(self.server_url,
                                transport=RequestsTransport())
-        result = server.LogIn("", "" , "eng", "subscope %s" % __version__)
+        result = server.LogIn("", "", "eng", "subscope %s" % __version__)
         token = result['token']
         response = server.SearchSubtitles(token, [search])
         server.LogOut(token)
@@ -209,4 +211,3 @@ class OpenSubtitles(SubscopeSource):
     def download(self, subtitle, stream):
         response = requests.get(subtitle["link"])
         stream.write(gzip.GzipFile(fileobj=StringIO(response.content)).read())
-

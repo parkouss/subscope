@@ -25,6 +25,7 @@ from subscope.tests import Mock
 from subscope.core import Subscope, key_sub_by_langs
 from subscope.sources import SubscopeSource
 
+
 class TestSubscope(unittest.TestCase):
     def setUp(self):
         self.subscope = Subscope()
@@ -65,13 +66,16 @@ class TestSubscope(unittest.TestCase):
         def do_download(sub, stream):
             stream.write(b'this is my sub')
 
-        self.subscope.sources = {'test': Mock(download=Mock(side_effect=do_download))}
+        self.subscope.sources = \
+            {'test': Mock(download=Mock(side_effect=do_download))}
 
         path = os.path.join(tempdir, 'my-movie.avi')
-        self.subscope.download({'source': 'test', 'moviepath': path, 'ext': '.srt'})
+        self.subscope.download({'source': 'test', 'moviepath': path,
+                                'ext': '.srt'})
 
         with open(os.path.join(tempdir, 'my-movie.srt')) as f:
             self.assertEquals(f.read(), 'this is my sub')
+
 
 class TestSubsByLangs(unittest.TestCase):
     def test_simple(self):

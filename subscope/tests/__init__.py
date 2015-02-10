@@ -23,6 +23,7 @@ except ImportError:
 import tempfile
 import itertools
 
+
 def generate_file(size, sequence='123456789'):
     f = tempfile.NamedTemporaryFile(delete=False)
     infinite = itertools.cycle(sequence)

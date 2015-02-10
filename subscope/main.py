@@ -24,14 +24,16 @@ from requests.exceptions import RequestException
 from ConfigParser import ConfigParser
 
 from subscope import __version__, languages
-from subscope.core import (Subscope, DownloadFirstHandler, 
-                            DownloadInteractiveHandler)
+from subscope.core import (Subscope, DownloadFirstHandler,
+                           DownloadInteractiveHandler)
 from subscope.sources import SubscopeSource
 
 LOG = logging.getLogger(__name__.split('.')[0])
 
+
 class FinalAction(argparse.Action):
     help = None
+
     def __init__(self, option_strings, dest=argparse.SUPPRESS,
                  default=argparse.SUPPRESS):
         super(FinalAction, self).__init__(option_strings=option_strings,
@@ -42,19 +44,24 @@ class FinalAction(argparse.Action):
         self.execute()
         parser.exit()
 
+
 class ListSources(FinalAction):
     help = "list available subtitles sources and exit"
+
     def execute(self):
         for source_name in sorted(SubscopeSource.REGISTRY):
             print(" - %s" % source_name)
 
+
 class ListLangs(FinalAction):
     help = ("list language codes (ISO 639-1 two chars codes) and exit."
             " Note that all these codes are not used by every sources")
+
     def execute(self):
         langs = sorted(languages.LANGS.items(), key=lambda l: l[1])
         for code, desc in langs:
             print(" %s: %s" % (code, desc))
+
 
 def parse_args(argv=None, **defaults):
     usage = "%(prog)s [options] filepath [filepath ...]"
@@ -96,6 +103,7 @@ def parse_args(argv=None, **defaults):
     options.language = options.language.replace(' ', '')
     return options
 
+
 def read_conf(conf_file):
     defaults = {}
     if os.path.isfile(conf_file):
@@ -105,13 +113,16 @@ def read_conf(conf_file):
         defaults = dict(conf.items('subscope'))
     return defaults
 
+
 def set_requests_global_defaults(meth_name, **defaults):
     meth = getattr(requests, meth_name)
+
     def _meth(url, **kwargs):
         for k, v in defaults.iteritems():
             kwargs.setdefault(k, v)
         return meth(url, **kwargs)
     setattr(requests, meth_name, _meth)
+
 
 def check_pypi_version():
     url = "https://pypi.python.org/pypi/subscope/json"
@@ -125,6 +136,7 @@ def check_pypi_version():
                  " is available.", __version__, pypi_version)
         LOG.warn("You should consider upgrading via the 'pip install"
                  " --upgrade subscope' command.")
+
 
 def main(argv=None):
     logging.basicConfig()

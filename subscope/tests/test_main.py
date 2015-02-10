@@ -26,6 +26,7 @@ from subscope import __version__
 from subscope.main import (main, read_conf, set_requests_global_defaults,
                            check_pypi_version)
 
+
 class TestMain(unittest.TestCase):
     @patch('sys.stderr')
     @patch('sys.stdout')
@@ -39,10 +40,13 @@ class TestMain(unittest.TestCase):
         DownloadFirstHandler.return_value = self.handler
         self.stdout = ''
         self.stderr = ''
+
         def do_write_stdout(txt):
             self.stdout += txt
+
         def do_write_stderr(txt):
             self.stderr += txt
+
         stdout.write.side_effect = do_write_stdout
         stderr.write.side_effect = do_write_stderr
         main(argv)
@@ -78,7 +82,9 @@ class TestMain(unittest.TestCase):
 
     def test_std(self):
         self.do_main(['-l', 'fr,en', '/my/movie', '/my/movie2'])
-        self.handler.run.assert_called_with(['/my/movie', '/my/movie2'], ['fr', 'en'])
+        self.handler.run.assert_called_with(['/my/movie', '/my/movie2'],
+                                            ['fr', 'en'])
+
 
 class TestReadConf(unittest.TestCase):
     def test_simple(self):
@@ -88,6 +94,7 @@ class TestReadConf(unittest.TestCase):
         self.addCleanup(os.unlink, f.name)
         defaults = read_conf(f.name)
         self.assertEquals(defaults, {"language": "fr,en"})
+
 
 class TestSetRequestsGlobalDefaults(unittest.TestCase):
     @patch('requests.get')
@@ -99,12 +106,14 @@ class TestSetRequestsGlobalDefaults(unittest.TestCase):
         # but can be overriden
         requests.get('http://foo', timeout=1)
         get.assert_called_with('http://foo', timeout=1)
-        
+
+
 class TestCheckPyPiVersion(unittest.TestCase):
     @patch('subscope.main.LOG')
     @patch('requests.get')
     def test_checkpypi_same(self, get, LOG):
-        get.return_value = Mock(json= lambda: {'info': {'version': __version__}})
+        get.return_value = \
+            Mock(json=lambda: {'info': {'version': __version__}})
         check_pypi_version()
         self.assertFalse(LOG.warn.called)
         self.assertFalse(LOG.critical.called)
@@ -112,9 +121,10 @@ class TestCheckPyPiVersion(unittest.TestCase):
     @patch('subscope.main.LOG')
     @patch('requests.get')
     def test_checkpypi_new_release(self, get, LOG):
-        get.return_value = Mock(json= lambda: {'info': {'version': '0.0'}})
+        get.return_value = Mock(json=lambda: {'info': {'version': '0.0'}})
         check_pypi_version()
-        self.assertIn("You are using subscope version", LOG.warn.call_args_list[0][0][0])
+        self.assertIn("You are using subscope version",
+                      LOG.warn.call_args_list[0][0][0])
 
     @patch('subscope.main.LOG')
     @patch('requests.get')

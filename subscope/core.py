@@ -26,8 +26,10 @@ import os
 
 LOG = logging.getLogger(__name__)
 
+
 def subtitle_fname(subtitle):
     return os.path.splitext(subtitle['moviepath'])[0] + subtitle['ext']
+
 
 class Subscope(object):
     def __init__(self, source_names=None):
@@ -72,14 +74,17 @@ class Subscope(object):
             source.download(subtitle, stream)
         return dest
 
+
 def key_sub_by_langs(langs):
     limit = len(langs)
+
     def by_lang(sub):
         try:
             return langs.index(sub['lang'])
         except ValueError:
             return limit
     return by_lang
+
 
 class DownloadHandler(object):
     def __init__(self, subscope, force=False):
@@ -112,12 +117,15 @@ class DownloadHandler(object):
                  subtitle['source'])
         self.subscope.download(subtitle, dest=dest)
 
+
 class DownloadFirstHandler(DownloadHandler):
     def _handle(self, subtitles, langs):
         if LOG.isEnabledFor(logging.DEBUG):
             # subtitles are already grouped by source, we don't have to
             # sort them for the groupby call.
-            by_source = lambda sub: sub['source']
+            def by_source(sub):
+                return sub['source']
+
             for source_name, subs in groupby(subtitles, by_source):
                 subs = list(subs)
                 nb_subs = len(subs)
@@ -127,6 +135,7 @@ class DownloadFirstHandler(DownloadHandler):
         subtitles = sorted(subtitles, key=key_sub_by_langs(langs))
         # well, just take the first one here
         self._download(subtitles[0])
+
 
 class DownloadInteractiveHandler(DownloadHandler):
     def _handle(self, subtitles, langs):

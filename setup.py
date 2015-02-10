@@ -23,8 +23,10 @@ from setuptools import setup
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def read(*parts):
     return open(os.path.join(THIS_DIR, *parts)).read()
+
 
 def version():
     return re.findall("__version__ = '([\d\.]+)'",
@@ -44,21 +46,21 @@ setup(name='subscope',
       keywords="subtitles movies srt download opensubtitles thesubdb",
       license="GPLv3",
       packages=['subscope', 'subscope.sources', 'subscope.tests'],
-      classifiers=["Development Status :: 3 - Alpha",
-                   "Topic :: Utilities",
-                   "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-                   "Environment :: Console",
-                   "Operating System :: OS Independent",
-                   "Programming Language :: Python :: 2",
-                   "Programming Language :: Python :: 2.7",
-                   "Programming Language :: Python :: 3",
-                   "Programming Language :: Python :: 3.3",
-                   "Programming Language :: Python :: 3.4"],
+      classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Topic :: Utilities",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Environment :: Console",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4"],
       install_requires=["requests"],
       entry_points={
         'console_scripts': ['subscope = subscope.main:main']
       },
       test_suite="subscope.tests",
       tests_require=tests_require,
-      use_2to3=True,
-)
+      use_2to3=True)
