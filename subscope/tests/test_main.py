@@ -28,16 +28,25 @@ from subscope.main import (main, read_conf, set_requests_global_defaults,
 
 
 class TestMain(unittest.TestCase):
+    handler_raise_error = None
+
     @patch('sys.stderr')
     @patch('sys.stdout')
+    @patch('subscope.main.DownloadInteractiveHandler')
     @patch('subscope.main.DownloadFirstHandler')
     @patch('subscope.main.read_conf')
     @patch('subscope.main.check_pypi_version')
     def do_main(self, argv, check_pypi_version, read_conf,
-                DownloadFirstHandler, stdout, stderr):
+                DownloadFirstHandler, DownloadInteractiveHandler,
+                stdout, stderr):
         read_conf.return_value = {}
         self.handler = Mock()
+        if self.handler_raise_error:
+            self.handler.run.side_effect = self.handler_raise_error
         DownloadFirstHandler.return_value = self.handler
+        DownloadInteractiveHandler.return_value = self.handler
+        self.DownloadFirstHandler = DownloadFirstHandler
+        self.DownloadInteractiveHandler = DownloadInteractiveHandler
         self.stdout = ''
         self.stderr = ''
 
@@ -84,6 +93,20 @@ class TestMain(unittest.TestCase):
         self.do_main(['-l', 'fr,en', '/my/movie', '/my/movie2'])
         self.handler.run.assert_called_with(['/my/movie', '/my/movie2'],
                                             ['fr', 'en'])
+        self.assertTrue(self.DownloadFirstHandler.called)
+        self.assertFalse(self.DownloadInteractiveHandler.called)
+
+    def test_interactive(self):
+        self.do_main(['--interactive', '/my/movie'])
+        self.handler.run.assert_called_with(['/my/movie'], ['en'])
+        self.assertFalse(self.DownloadFirstHandler.called)
+        self.assertTrue(self.DownloadInteractiveHandler.called)
+
+    def test_keyboard_interrupt(self):
+        self.handler_raise_error = KeyboardInterrupt
+        with self.assertRaises(SystemExit) as ctx:
+            self.do_main(['/my/movie'])
+        self.assertIn('Interrupted', ctx.exception.code)
 
 
 class TestReadConf(unittest.TestCase):
