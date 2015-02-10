@@ -4,8 +4,18 @@ python:
 - "3.3"
 - "3.4"
 
+# code coverage is measured only for python 2.7
+# this is tricky for python 3, as we use 'use_2to3' flag
+# in the setup.py - this move code in build/lib folder
+# and coverage config is not adapted to that.
+
 install:
-- pip install -e .
+- pip install .
+- if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install coveralls; fi
 
 script:
-- python setup.py test
+- if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then coverage run setup.py test; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then python setup.py test; fi
+
+after_success:
+- if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then coveralls; fi
