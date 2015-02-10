@@ -18,7 +18,7 @@
 try:
     from mock import Mock, patch
 except ImportError:
-    from unittest.mock import Mock, patch
+    from unittest.mock import Mock, patch  # noqa
 
 import tempfile
 import itertools

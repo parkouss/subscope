@@ -16,7 +16,6 @@
 # along with subscope. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import xmlrpclib
 import struct
 import logging
 import requests
