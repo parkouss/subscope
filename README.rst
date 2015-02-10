@@ -7,6 +7,8 @@ See the `project page`_ for more documentation.
 
 .. image:: https://travis-ci.org/parkouss/subscope.svg?branch=master
     :target: https://travis-ci.org/parkouss/subscope
+.. image:: https://coveralls.io/repos/parkouss/subscope/badge.svg?branch=master
+    :target: https://coveralls.io/r/parkouss/subscope?branch=master
 
 Installation
 ------------
