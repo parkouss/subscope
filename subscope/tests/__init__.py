@@ -22,6 +22,11 @@ except ImportError:
 
 import tempfile
 import itertools
+import sys
+
+
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
 
 
 def generate_file(size, sequence='123456789'):

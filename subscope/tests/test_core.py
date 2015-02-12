@@ -20,10 +20,11 @@ import tempfile
 import shutil
 import os
 
-from subscope.tests import Mock, patch
+from subscope.tests import Mock, patch, PY2
 
 from subscope.core import (Subscope, key_sub_by_langs, DownloadHandler,
-                           subtitle_fname)
+                           subtitle_fname, DownloadFirstHandler,
+                           DownloadInteractiveHandler)
 from subscope.sources import SubscopeSource
 
 
@@ -165,3 +166,44 @@ class TestDownloadHandler(unittest.TestCase):
         self.handler.force = True
         self.handler._download(sub)
         self.subscope.download.assert_called_with(sub, dest=subpath)
+
+
+class TestDownloadFirstHandler(unittest.TestCase):
+    @patch('subscope.core.LOG')
+    def test_handle(self, LOG):
+        subs = [
+            {'lang': 'fr', 'source': 'test'},
+            {'lang': 'en', 'source': 'test1'},
+        ]
+        handler = DownloadFirstHandler(None)
+        handler._download = Mock()
+        handler._handle(subs, ['fr', 'en'])
+        handler._download.assert_called_with({'lang': 'fr', 'source': 'test'})
+
+
+if PY2:
+    MOCK_INPUT = "__builtin__.raw_input"
+else:
+    MOCK_INPUT = "builtins.input"
+
+
+class TestDownloadInteractiveHandler(unittest.TestCase):
+    def setUp(self):
+        self.handler = DownloadInteractiveHandler(None)
+        self.handler._download = Mock()
+
+    def test_only_one_sub(self):
+        sub = {'lang': 'fr', 'source': 'test'}
+        self.handler._handle([sub], ['fr', 'en'])
+        self.handler._download.assert_called_with(sub)
+
+    @patch(MOCK_INPUT)
+    def test_with_choice(self, input_):
+        input_.return_value = '2'
+        subs = [
+            {'lang': 'fr', 'source': 'test'},
+            {'lang': 'en', 'source': 'test1'},
+        ]
+        self.handler._handle(subs, ['fr', 'en'])
+        self.handler._download.assert_called_with({'lang': 'en',
+                                                   'source': 'test1'})
