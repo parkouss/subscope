@@ -20,9 +20,10 @@ import tempfile
 import shutil
 import os
 
-from subscope.tests import Mock
+from subscope.tests import Mock, patch
 
-from subscope.core import Subscope, key_sub_by_langs
+from subscope.core import (Subscope, key_sub_by_langs, DownloadHandler,
+                           subtitle_fname)
 from subscope.sources import SubscopeSource
 
 
@@ -103,3 +104,64 @@ class TestSubsByLangs(unittest.TestCase):
             {'lang': 'fr', 'source': '1'},
             {'lang': 'ru', 'source': '2'},
         ])
+
+
+class TestDownloadHandler(unittest.TestCase):
+    def setUp(self):
+        self.subscope = Mock()
+        self.handler = DownloadHandler(self.subscope)
+        self.handler._handle = Mock()
+        self.tempdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tempdir)
+
+    def create_test_file(self, name):
+        path = os.path.join(self.tempdir, name)
+        with open(path, 'w') as f:
+            f.write('something')
+        return path
+
+    def test_run(self):
+        self.subscope.search.return_value = [1, 2]
+        moviepath = self.create_test_file('mymovie.avi')
+        self.handler.run([moviepath], ['en'])
+        self.handler._handle.assert_called_with([1, 2], ['en'])
+
+    @patch('subscope.core.LOG')
+    def test_run_no_subtitles(self, LOG):
+        self.subscope.search.return_value = []
+        moviepath = self.create_test_file('mymovie.avi')
+        self.handler.run([moviepath], ['en'])
+        self.assertFalse(self.handler._handle.called)
+        self.assertIn("Unable to find any subtitle",
+                      LOG.warn.call_args_list[0][0][0])
+
+    @patch('subscope.core.LOG')
+    def test_run_path_does_not_exists(self, LOG):
+        moviepath = 'somethingthatwontexists.avi'
+        self.handler.run([moviepath], ['en'])
+        self.assertFalse(self.handler._handle.called)
+        self.assertIn("not a file", LOG.warn.call_args_list[0][0][0])
+
+    def test_download(self):
+        sub = {'lang': 'fr', 'moviepath': 'somethingthatwontexists.avi',
+               'source': 'sourceTest', 'ext': '.srt'}
+        self.handler._download(sub)
+        self.subscope.download.assert_called_with(sub,
+                                                  dest=subtitle_fname(sub))
+
+    def test_download_sub_already_exists(self):
+        moviepath = self.create_test_file('my.avi')
+        self.create_test_file('my.srt')
+        sub = {'lang': 'fr', 'moviepath': moviepath,
+               'source': 'sourceTest', 'ext': '.srt'}
+        self.handler._download(sub)
+        self.assertFalse(self.subscope.download.called)
+
+    def test_download_sub_already_exists_with_force(self):
+        moviepath = self.create_test_file('my.avi')
+        subpath = self.create_test_file('my.srt')
+        sub = {'lang': 'fr', 'moviepath': moviepath,
+               'source': 'sourceTest', 'ext': '.srt'}
+        self.handler.force = True
+        self.handler._download(sub)
+        self.subscope.download.assert_called_with(sub, dest=subpath)
