@@ -17,8 +17,10 @@
 
 import unittest
 import os
+import urllib
+from StringIO import StringIO
 
-from subscope.tests import generate_file
+from subscope.tests import generate_file, patch, Mock
 
 from subscope.sources import thesubdb
 
@@ -29,3 +31,47 @@ class TestTheSubDBHash(unittest.TestCase):
         self.addCleanup(os.unlink, fname)
         filehash = thesubdb.get_hash(fname)
         self.assertEquals(filehash, '7670cc52c96414e1f6c29cbbb6b422b5')
+
+
+class TestTheSubDB(unittest.TestCase):
+    def setUp(self):
+        self.source = thesubdb.TheSubDB()
+
+    @patch('subscope.sources.thesubdb.get_hash')
+    @patch('requests.get')
+    def test_search(self, get, get_hash):
+        get_hash.return_value = '0123456'
+        get.return_value = Mock(text="fr,en,ru\n")
+        subs = self.source.search('/my/file.avi', ['fr', 'en'])
+
+        get.assert_called_with(self.source.url,
+                               params={'action': 'search', 'hash': '0123456'},
+                               headers=self.source.headers)
+        self.assertEquals(len(subs), 2)
+        sub = subs[0]
+        self.assertEquals(sub['lang'], 'fr')
+        expected_link = '%s?%s' % (self.source.url,
+                                   urllib.urlencode({'action': 'download',
+                                                     'hash': '0123456',
+                                                     'language': 'fr'}))
+        self.assertEquals(sub['link'], expected_link)
+
+    @patch('subscope.sources.thesubdb.get_hash')
+    @patch('requests.get')
+    def test_search_no_subtitles(self, get, get_hash):
+        get_hash.return_value = '0123456'
+        get.return_value = Mock(status_code=404)
+        subs = self.source.search('/my/file.avi', ['fr', 'en'])
+
+        self.assertEquals(len(subs), 0)
+
+    @patch('requests.get')
+    def test_download(self, get):
+        subcontent = 'this is a sub'
+        get.return_value = Mock(content=subcontent)
+        stream = StringIO()
+        self.source.download({'link': 'http://linktomysub'}, stream)
+
+        get.assert_called_with('http://linktomysub',
+                               headers=self.source.headers)
+        self.assertEquals(subcontent, stream.getvalue())
