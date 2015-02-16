@@ -20,11 +20,7 @@ import struct
 import logging
 import requests
 import gzip
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+import io
 
 try:
     import xmlrpc.client as xmlrpc
@@ -209,4 +205,5 @@ class OpenSubtitles(SubscopeSource):
 
     def download(self, subtitle, stream):
         response = requests.get(subtitle["link"])
-        stream.write(gzip.GzipFile(fileobj=StringIO(response.content)).read())
+        stream.write(
+            gzip.GzipFile(fileobj=io.BytesIO(response.content)).read())
