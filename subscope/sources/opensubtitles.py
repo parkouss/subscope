@@ -148,7 +148,7 @@ class RequestsTransport(xmlrpc.Transport):
         """
         Make an xmlrpc request.
         """
-        headers = {'User-Agent': self.user_agent}
+        headers = {'User-Agent': self.user_agent, "Content-Type": "text/xml"}
         url = self._build_url(host, handler)
         resp = requests.post(url, data=request_body, headers=headers)
         try:
@@ -173,7 +173,7 @@ class RequestsTransport(xmlrpc.Transport):
         Build a url for our request based on the host, handler and use_http
         property
         """
-        return 'http://%s/%s' % (host, handler)
+        return 'http://%s/%s' % (host, handler.lstrip('/'))
 
 
 class OpenSubtitles(SubscopeSource):

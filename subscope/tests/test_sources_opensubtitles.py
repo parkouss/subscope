@@ -53,7 +53,8 @@ class TestRequestsTransport(unittest.TestCase):
 
         res = self.transport.request('localhost', 'meth', {'p': '1'}, 1)
 
-        headers = {'User-Agent': self.transport.user_agent}
+        headers = {'User-Agent': self.transport.user_agent,
+                   "Content-Type": "text/xml"}
         post.assert_called_with('http://localhost/meth',
                                 data={'p': '1'},
                                 headers=headers)
